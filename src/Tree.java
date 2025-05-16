@@ -4,7 +4,7 @@ import java.util.Objects;
 public class Tree {
 	
 	private Integer root;
-	private ArrayList<Tree> subtrees;
+	private ArrayList<Tre	e> subtrees;
 	
 	/*
 		RP-IV:
