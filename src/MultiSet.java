@@ -1,14 +1,19 @@
-/**
- * Abstract class representing a MultiSet ADT.
- */
+/** Abstract class representing a MultiSet ADT. */
 public abstract class MultiSet {
-
     /**
-     * Add the given item to this multiset.
-     *
+     * Add the given item to multiset.
      * @param item the item to add
      */
     abstract void add(Integer item);
 
-    // TODO finish adding abstract methods to fully describe what it means to be a MultiSet.
+    abstract void remove(Integer item);
+
+    abstract boolean contains(Integer item);
+
+    abstract boolean isEmpty();
+
+    abstract int count(Integer item);
+
+    abstract int size();
+
 }
