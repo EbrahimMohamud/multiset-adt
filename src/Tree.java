@@ -1,78 +1,133 @@
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
+
+/* A recursive tree data structure, which provides services required of the MultiSet ADT.
+
+ *   === Representation Invariants ===
+ *   If root is None then subtrees is an empty list.
+ *   This setting of attributes represents an empty tree. */
 
 public class Tree {
-	
-	private Integer root;
-	private ArrayList<Tre	e> subtrees;
-	
-	/*
-		RP-IV:
-		- If root is None, then subtrees is an empty list.
-	*/
-	
-	public Tree(Integer root, ArrayList<Tree> subtrees) {
+	// === Private Attributes ===
+	private Integer root;  // Wrapper Class Integer (root = null)
+	private ArrayList<Tree> subtree;  // ArrayList of TreeClass
+
+	/** Initialize a new Tree with the given root value and subtrees.
+	 * If <root> is None, the tree is empty.
+	 * Precondition: if <root> is None, then <subtrees> is empty.
+	 *
+	 * @param root the node value
+	 * @param subtree the set of children trees
+	 */
+
+	// -------------------------------------------------------------------------
+	//                             Constructor
+	// -------------------------------------------------------------------------
+
+	public Tree(Integer root, ArrayList<Tree> subtree) {
 		this.root = root;
-		this.subtrees = new ArrayList<Tree>(subtrees);
-	}
-	
-    public Tree() {
-        this(null, new ArrayList<>());
-    }
-    
-	public boolean is_empty() {
-		return root == null;
-	}
-	
-	public int size() {
-		if (this.is_empty()) {
-			return 0;
-		}
-		else {
-			int size = 1;
-			for(Tree subtree: subtrees) {
-				size += subtree.size();
-			} 
-			return size;
+
+		if (subtree == null) {
+			this.subtree = new ArrayList<>();
+		} else {
+			this.subtree = subtree;
 		}
 	}
-	
-	public int count(int item) {
-		if (this.is_empty()) {
+	public Tree(Integer root) {
+		this.root = root;
+		this.subtree = new ArrayList<>();
+	}
+
+	// -------------------------------------------------------------------------
+	//                             Non-Mutating methods
+	// -------------------------------------------------------------------------
+
+	public boolean isEmpty() {return this.root == null;}
+
+	public int len() {
+		if (this.isEmpty()) {
 			return 0;
 		} else {
-			int num = 0;
-
-			if (root == item) {
-				num ++;
+			int count = 0;
+			for (Tree sub : this.subtree) {
+				count += 1 + sub.len();
 			}
-
-			for (Tree subtree: subtrees) {
-				num += subtree.count(item);
-			}
-			
-			return num;
+			return count;
 		}
 	}
-	
-	public float average() {
-		if (this.is_empty()) {
-			return 0.0f;
+
+	public int count(int item) {
+		if (this.isEmpty()) {
+			return 0;
+		} else {
+			int count = 0;
+			if (this.root == item) {
+				count += 1;
+			}
+			for (Tree sub : this.subtree) {
+				count += sub.count(item);
+			}
+			return count;
 		}
-		int[] result = this.average_helper();
-		return (float) result[0] / result[1];
 	}
-	
-	public boolean contains(int item) {
-		if (this.is_empty()) {
+
+	public double average() {
+		// Return the average of all the values in this tree.
+		int total = this.averageHelp()[0];
+		int num = this.averageHelp()[1];
+
+		if (num == 0) {
+			return 0.0;
+		} else {
+			return ((double) total /num);
+		}
+	}
+
+	private Integer[] averageHelp() {
+		// Return the total count and num count.
+		if (this.isEmpty()) {
+			return new Integer[]{0, 0};
+		} else {
+			int total = this.root;
+			int num = 1;
+
+			for (Tree sub : this.subtree) {
+				total += sub.averageHelp()[0];
+				num += sub.averageHelp()[1];
+			}
+			return new Integer[]{total, num};
+		}
+	}
+
+	public boolean equals(Tree object) {
+		if (this.isEmpty() && object.isEmpty()) {
+			return true;
+		} else if (this.isEmpty() || object.isEmpty()) {
 			return false;
 		}
-		
-		if (item == root) {
+		else {
+			if (this.len() != object.len()) {
+				return false;
+			}
+			if (this.root != object.root) {
+				return false;
+			}
+			for (int i = 0; i < this.len(); i++) {
+				return this.subtree.get(i).equals(object.subtree.get(i));
+			}
+			return true;
+		}
+	}
+
+	public boolean contains(int item) {
+		if (this.isEmpty()) {
+			return false;
+		} else if (this.root == item) {
 			return true;
 		} else {
-			for (Tree subtree: subtrees) {
-				if (subtree.contains(item)) {
+			for (Tree sub : this.subtree) {
+				if (sub.contains(item)) {
 					return true;
 				}
 			}
@@ -81,75 +136,98 @@ public class Tree {
 	}
 
 	public ArrayList<Integer> leaves() {
-    ArrayList<Integer> result = new ArrayList<>();
-    
-    if (this.is_empty()) {
-        return result;
-    }
-    
-    if (subtrees.isEmpty()) {
-        result.add(root);
-    } else {
-        for (Tree subtree : subtrees) {
-            result.addAll(subtree.leaves());
-        	}
-    	}
-    return result;
-	}
-	
-// Mutating methods,
-
-	
-
-// Inherited methods,
-	
-	@Override
-	public String toString() {
-		return this.str_indented(0);
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-    	if (this == obj) {
-        	return true;
-    	}
-    	
-    	if (obj == null || getClass() != obj.getClass()) {
-        	return false;
-    	}
-    	Tree other = (Tree) obj;
-    	if (root == null ? other.root != null : !root.equals(other.root)) {
-        	return false;
-    	}
-    	return subtrees.equals(other.subtrees);
-    }
-
-// Helpers,
-	
-	private String str_indented(int depth) {
-		if (this.is_empty()) {
-			return "";
+		if (this.isEmpty()) {
+			return new ArrayList<>();
+		} else if (this.subtree.equals(new ArrayList<>())) {
+			return new ArrayList<>(this.root);
 		} else {
-			StringBuilder s = new StringBuilder(" ".repeat(depth) + root + "\n");
-			for (Tree subtree: subtrees) {
-				s.append(subtree.str_indented(depth + 1));
+			ArrayList<Integer> value = new ArrayList<>();
+			for (Tree sub : this.subtree) {
+				value.addAll(sub.leaves());
 			}
-			return s.toString();
+			return value;
 		}
 	}
-	
-	private int[] average_helper() {
-		if (this.is_empty()) {
-			return new int[] {0, 0};
+
+	// -------------------------------------------------------------------------
+	//                             Mutating methods
+	// -------------------------------------------------------------------------
+
+	public boolean delete(int item) {
+		if (this.isEmpty()) {
+			return false;
+		} else if (this.root == item) {
+			this.deleteRoot();
+			return true;
 		} else {
-			int total = root != null ? root : 0;
-			int size = 1;
-			for (Tree subtree: subtrees) {
-				int[] subtreeResult = subtree.average_helper();
-				total += subtreeResult[0];
-				size += subtreeResult[1];
+			for (Tree subtree : this.subtree) {
+				boolean deleted = subtree.delete(item);
+				if  (deleted && subtree.isEmpty()) {
+					this.subtree.remove(subtree);
+					return true;
+				} else if (deleted) {
+					return true;
+				} else {}
 			}
-			return new int[] {total, size}; 
+			return false;
+		}
+	}
+
+	public void deleteRoot() {
+		if (this.subtree.size() == 0) {
+			this.root = null;
+		} else {
+			Tree chosenTree = this.subtree.remove(this.subtree.size() - 1);
+			this.root = chosenTree.root;
+			this.subtree.addAll(chosenTree.subtree);
+		}
+	}
+	public int extractLeaf() {
+		if (this.subtree.size() == 0) {
+			Integer oldRoot = this.root;
+			this.root = null;
+			return oldRoot;
+		} else {
+			int leaf = this.subtree.get(0).extractLeaf();
+			if (this.subtree.get(0).isEmpty()) {
+				this.subtree.remove(0);
+			}
+			return leaf;
+		}
+	}
+
+	public void insert(int item) {
+		if (this.isEmpty()) {
+			this.root = item;
+		} else if (this.subtree.size() == 0) {
+			this.subtree = new ArrayList<>(Arrays.asList(new Tree(item, new ArrayList<>())));
+		} else {
+			if (ThreadLocalRandom.current().nextInt(1, 4) == 3) {
+				this.subtree.add(new Tree(item, new ArrayList<>()));
+			} else {
+				int subtreeIndex = ThreadLocalRandom.current().nextInt(0, this.subtree.size() - 1);
+				this.subtree.get(subtreeIndex).insert(item);
+			}
+		}
+	}
+
+	public boolean insertChild(int item, int parent) {
+		if (this.isEmpty()) {
+			return false;
+		} else if (this.root == parent) {
+			this.subtree.add(new Tree(item, new ArrayList<>()));
+			return true;
+		} else {
+			for (Tree subtree : this.subtree) {
+				if (subtree.insertChild(item, parent)) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }
+
+
+
+
