@@ -556,7 +556,18 @@ class LinkedListMultiSet(MultiSet):
     def is_empty(self) -> bool:
         return self._front is None
 
-    def count(self, item: int) -> int:
+    def count(self, item: int) -> int:    # sanity check that we added n items
+    assert my_input.size() == n
+
+    start = time.time()
+
+    for x in items_added:
+        my_input.remove(x)
+
+    end = time.time()
+
+    # sanity check that we successfully removed all the items we had added!
+    assert my_input.is_empty()
         num_seen = 0
         cur = self._front
         while cur is not None:
