@@ -222,8 +222,12 @@ public class Tree {
 			if (ThreadLocalRandom.current().nextInt(1, 4) == 3) {
 				this.subtree.add(new Tree(item, new ArrayList<>()));
 			} else {
-				int subtreeIndex = ThreadLocalRandom.current().nextInt(0, this.subtree.size() - 1);
-				this.subtree.get(subtreeIndex).insert(item);
+				if (this.subtree.size() > 1) {
+					int subtreeIndex = ThreadLocalRandom.current().nextInt(0, this.subtree.size() - 1);
+					this.subtree.get(subtreeIndex).insert(item);
+				} else {
+					this.subtree.get(0).insert(item);
+				}
 			}
 		}
 	}
