@@ -10,27 +10,63 @@ public class LinkedListMultiSet extends MultiSet {
     private Node head;
     private int size;
 
+    public LinkedListMultiSet() {
+        this.head = null;
+        this.size = 0;
+    }
+
     @Override
     void add(Integer item){
+        Node newNode = new Node(item);
+        newNode.next = this.head;
+        this.head = newNode;
+        this.size++;
     }
     @Override
     void remove(Integer item){
+        Node currentNode = this.head;
+        Node previousNode = null;
+        while (currentNode != null) {
+            if (currentNode.item == item) {
+                this.size--;
+                if (previousNode != null) {
+                    previousNode.next = currentNode.next;
+                } else {
+                    this.head = currentNode.next;
+                }
+            }
+            previousNode = currentNode;
+            currentNode = currentNode.next;
+        }
     }
     @Override
     boolean contains(Integer item) {
+        Node currentNode = this.head;
+        while (currentNode != null) {
+            if (currentNode.item == item) {
+                return true;
+            }
+        } currentNode = currentNode.next;
         return false;
     }
     @Override
     boolean isEmpty(){
-        return true;
+        return this.head == null;
     }
     @Override
     int count(Integer item){
-        return 0;
+        Node currentNode = this.head;
+        int count = 0;
+        while (currentNode != null) {
+            if (currentNode.item == item) {
+                count++;
+            } currentNode = currentNode.next;
+        }
+        return count;
     }
     @Override
     int size() {
-        return 0;
+        return this.size;
     }
 }
 
