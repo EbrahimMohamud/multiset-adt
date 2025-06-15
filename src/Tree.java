@@ -72,6 +72,23 @@ public class Tree {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return this.strIndented(0);
+	}
+
+	private String strIndented(int depth) {
+		if (this.isEmpty()) {
+			return "";
+		} else {
+			StringBuilder s = new StringBuilder(" ".repeat(depth) + root + "\n");
+			for (Tree subtree: this.subtree) {
+				s.append(subtree.strIndented(depth + 1));
+			}
+			return s.toString();
+		}
+	}
+
 	public double average() {
 		// Return the average of all the values in this tree.
 		int total = this.averageHelp()[0];
